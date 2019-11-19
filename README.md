@@ -1,6 +1,7 @@
 # WTraining
 
 WTraining
+[![Build Status](https://travis-ci.com/wolox-training/tg-express-js.svg?branch=master)](https://travis-ci.com/wolox-training/tg-express-js)
 
 ## First steps
 

@@ -18,6 +18,5 @@ services:
   - postgresql
 
 before_script:
-  - npm run migrations-test
   - npm run lint
   - npm run test

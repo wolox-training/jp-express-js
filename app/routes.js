@@ -1,9 +1,8 @@
 const { healthCheck } = require('./controllers/healthCheck');
-const { getAlbums } = require('./controllers/albums');
-const { getPhotos } = require('./controllers/photos');
+const { getAlbums, getAlbumPhotos } = require('./controllers/albums');
 
 exports.init = app => {
   app.get('/health', healthCheck);
   app.get('/albums', getAlbums);
-  app.get('/photos', getPhotos);
+  app.get('/albums/:albumId/photos', getAlbumPhotos);
 };

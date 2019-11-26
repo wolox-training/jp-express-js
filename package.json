@@ -67,14 +67,16 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
-    "express": "^4.16.2",
-    "jwt-simple": "^0.5.1",
-    "sequelize": "^5.10.1",
-    "factory-girl": "^5.0.4",
-    "pg": "^7.4.1",
-    "umzug": "^2.1.0",
+    "express": "^4.17.1",
     "express-wolox-logger": "1.1.0",
-    "swagger-ui-express": "^4.0.7"
+    "factory-girl": "^5.0.4",
+    "jwt-simple": "^0.5.1",
+    "pg": "^7.4.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
+    "sequelize": "^5.10.1",
+    "swagger-ui-express": "^4.0.7",
+    "umzug": "^2.1.0"
   },
   "devDependencies": {
     "babel": "6.23.0",

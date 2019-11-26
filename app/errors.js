@@ -11,3 +11,6 @@ exports.defaultError = message => internalError(message, exports.DEFAULT_ERROR);
 
 exports.EXTERNAL_SERVICE_ERROR = 'external_service_error';
 exports.externalServiceError = message => internalError(message, exports.EXTERNAL_SERVICE_ERROR);
+
+exports.USER_VALIDATION_ERROR = 'user_validation_error';
+exports.userValidationError = message => internalError(message, exports.USER_VALIDATION_ERROR);

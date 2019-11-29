@@ -1,11 +1,15 @@
 const { validationResult } = require('express-validator');
-const { userValidationError } = require('../errors');
+const { userValidationError, missingRequiredParams, databaseError } = require('../errors');
 const { passwordRegexp, emailRegexp } = require('../helpers/constants');
 const { findUserByEmail } = require('../services/users');
 
-exports.validateUser = async (req, res, next) => {
+exports.validateCreateUserRequest = async (req, res, next) => {
   const { errors } = validationResult(req);
-  const { email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
+
+  if (!firstName || !lastName || !email || !password) {
+    next(missingRequiredParams('One of the required params is missing'));
+  }
 
   if (!emailRegexp.test(email)) next(userValidationError(`The email ${email} is not from our Wolox domain`));
 
@@ -13,7 +17,7 @@ exports.validateUser = async (req, res, next) => {
 
   const user = await findUserByEmail(email);
 
-  if (user) next(userValidationError(`A user with the email ${email} already exists.`));
+  if (user) next(databaseError(`A user with the email ${email} already exists.`));
 
   if (errors.length > 0) {
     const errorsMessages = errors.map(error => error.msg);

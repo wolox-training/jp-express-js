@@ -14,3 +14,6 @@ exports.externalServiceError = message => internalError(message, exports.EXTERNA
 
 exports.USER_VALIDATION_ERROR = 'user_validation_error';
 exports.userValidationError = message => internalError(message, exports.USER_VALIDATION_ERROR);
+
+exports.MISSING_REQUIRED_PARAMS = 'missing_required_params';
+exports.missingRequiredParams = message => internalError(message, exports.MISSING_REQUIRED_PARAMS);

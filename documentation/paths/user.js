@@ -1,35 +1,7 @@
 module.exports = {
   '/users': {
-    get: {
-      tags: ['CRUD operations'],
-      description: 'Get users',
-      operationId: 'getUsers',
-      parameters: [
-        {
-          name: 'page',
-          in: 'query',
-          schema: {
-            type: 'integer',
-            default: 1
-          },
-          required: false
-        }
-      ],
-      responses: {
-        200: {
-          description: 'Users were obtained',
-          content: {
-            'application/json': {
-              schema: {
-                $ref: '#/components/schemas/Users'
-              }
-            }
-          }
-        }
-      }
-    },
     post: {
-      tags: ['CRUD operations'],
+      tags: ['Create User'],
       description: 'Create user',
       operationId: 'createUser',
       parameters: [],
@@ -44,19 +16,33 @@ module.exports = {
         required: true
       },
       responses: {
-        200: {
+        201: {
           description: 'New user was created'
         },
-        400: {
-          description: 'Invalid parameters',
+        422: {
+          description: 'Unprocessable Entity',
           content: {
             'application/json': {
               schema: {
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/DatabaseError'
               },
               example: {
-                message: 'User´s email already exists',
-                internal_code: 'invalid_parameters'
+                message: 'A user with that email already exists.',
+                internal_code: 'database_error'
+              }
+            }
+          }
+        },
+        500: {
+          description: 'Internal Server Error',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/UserValidationError'
+              },
+              example: {
+                message: 'The password doesn`t meet our stadards.',
+                internal_code: 'user_validation_error'
               }
             }
           }

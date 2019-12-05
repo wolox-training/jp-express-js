@@ -17,3 +17,6 @@ exports.userValidationError = message => internalError(message, exports.USER_VAL
 
 exports.MISSING_REQUIRED_PARAMS = 'missing_required_params';
 exports.missingRequiredParams = message => internalError(message, exports.MISSING_REQUIRED_PARAMS);
+
+exports.UNAUTHORIZED = 'unauthorized';
+exports.unauthorized = message => internalError(message, exports.UNAUTHORIZED);

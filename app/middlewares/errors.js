@@ -7,7 +7,8 @@ const statusCodes = {
   [errors.DATABASE_ERROR]: 422,
   [errors.MISSING_REQUIRED_PARAMS]: 422,
   [errors.DEFAULT_ERROR]: 500,
-  [errors.USER_VALIDATION_ERROR]: 500
+  [errors.USER_VALIDATION_ERROR]: 500,
+  [errors.UNAUTHORIZED]: 401
 };
 
 exports.handle = (error, req, res, next) => {

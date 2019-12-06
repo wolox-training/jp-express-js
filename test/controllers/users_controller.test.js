@@ -2,6 +2,8 @@
 const request = require('supertest')(require('../../app'));
 const { factory } = require('../factory/user');
 const { USER_VALIDATION_ERROR, MISSING_REQUIRED_PARAMS, DATABASE_ERROR } = require('../../app/errors');
+const { generateToken } = require('../../app/helpers/token_generator');
+const { signUp } = require('../../app/services/users');
 
 describe('POST /users', () => {
   it('responds with a success status code and text when data sent meets all the criteria', async () => {
@@ -42,5 +44,41 @@ describe('POST /users', () => {
     const response = await request.post('/users').send(userParams);
     expect(response.statusCode).toBe(422);
     expect(response.body.internal_code).toEqual(MISSING_REQUIRED_PARAMS);
+  });
+});
+
+describe('POST /users/sessions', () => {
+  it('responds with an accessToken when email and password sent match the ones stored in database', async () => {
+    const userCredentials = { email: 'success.user@wolox.co', password: 'successpassword123' };
+    const userParams = await factory.attrs('user', userCredentials);
+    const storedUser = await signUp(
+      userParams.firstName,
+      userParams.lastName,
+      userParams.email,
+      userParams.password
+    );
+    const response = await request.post('/users/sessions').send(userCredentials);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.accessToken).toEqual(expect.stringContaining(generateToken(storedUser)));
+  });
+
+  it('responds with error status code and internal_code when the email sent doesnt exists', async () => {
+    const userCredentials = { email: 'non-existent@wolox.co', password: 'idontknow' };
+    const response = await request.post('/users/sessions').send(userCredentials);
+    expect(response.statusCode).toBe(500);
+    expect(response.body.internal_code).toEqual(USER_VALIDATION_ERROR);
+    expect(response.text).toEqual(expect.stringContaining('There is no user'));
+  });
+
+  it('responds with error status code and internal_code when the password sent doesnt matches with the record', async () => {
+    const userCredentials = { email: 'existent.user@wolox.co', password: 'passwordMatch' };
+    const userParams = await factory.attrs('user', userCredentials);
+    await signUp(userParams.firstName, userParams.lastName, userParams.email, userParams.password);
+    const response = await request
+      .post('/users/sessions')
+      .send({ email: userCredentials.email, password: 'passwordWontMatch' });
+    expect(response.statusCode).toBe(500);
+    expect(response.body.internal_code).toEqual(USER_VALIDATION_ERROR);
+    expect(response.text).toEqual(expect.stringContaining('password is invalid'));
   });
 });

@@ -20,3 +20,6 @@ exports.missingRequiredParams = message => internalError(message, exports.MISSIN
 
 exports.UNAUTHORIZED = 'unauthorized';
 exports.unauthorized = message => internalError(message, exports.UNAUTHORIZED);
+
+exports.FORBIDDEN = 'forbidden';
+exports.forbidden = message => internalError(message, exports.FORBIDDEN);

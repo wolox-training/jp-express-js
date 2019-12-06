@@ -1,9 +1,8 @@
-const { signUp, findUserByEmail, findAll } = require('../services/users');
+const { signUp, findUserByEmail, findAll, createOrUpdateAdmin } = require('../services/users');
 const { generateToken } = require('../helpers/authentication');
 
 exports.signUp = (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
-  signUp(firstName, lastName, email, password)
+  signUp(req.body)
     .then(user => res.status(201).send({ user }))
     .catch(next);
 };
@@ -18,5 +17,11 @@ exports.index = (req, res, next) => {
   const { page, limit } = req.query;
   findAll(page, limit)
     .then(users => res.send({ users }))
+    .catch(next);
+};
+
+exports.createAdmin = (req, res, next) => {
+  createOrUpdateAdmin(req.body)
+    .then(() => res.status(201).send())
     .catch(next);
 };

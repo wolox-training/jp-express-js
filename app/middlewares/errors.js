@@ -8,7 +8,8 @@ const statusCodes = {
   [errors.MISSING_REQUIRED_PARAMS]: 422,
   [errors.DEFAULT_ERROR]: 500,
   [errors.USER_VALIDATION_ERROR]: 500,
-  [errors.UNAUTHORIZED]: 401
+  [errors.UNAUTHORIZED]: 401,
+  [errors.FORBIDDEN]: 403
 };
 
 exports.handle = (error, req, res, next) => {

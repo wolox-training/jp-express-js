@@ -1,4 +1,4 @@
-const { findUserByEmail, signUp, findAll } = require('../../app/services/users');
+const { findUserByEmail, signUp, findAll, createOrUpdateAdmin } = require('../../app/services/users');
 const { User } = require('../../app/models');
 const { factory } = require('../factory/user');
 const { DATABASE_ERROR } = require('../../app/errors');
@@ -23,7 +23,7 @@ describe('findUserByEmail', () => {
 describe('signUp', () => {
   it('creates a new user in the database if the data sent meets all the criteria', async () => {
     const sampleUser = await factory.attrs('user');
-    await signUp(sampleUser.firstName, sampleUser.lastName, sampleUser.email, sampleUser.password);
+    await signUp(sampleUser);
     const users_count = await User.count();
     expect(users_count).toBeGreaterThan(0);
   });
@@ -32,25 +32,26 @@ describe('signUp', () => {
     const sampleUser = await factory.attrs('user');
     await User.create(sampleUser);
     try {
-      await signUp(sampleUser.firstName, sampleUser.lastName, sampleUser.email, sampleUser.password);
+      await signUp(sampleUser);
     } catch (err) {
-      const users_count = await User.count();
       expect(err).not.toBe(null);
       expect(err.internalCode).toEqual(DATABASE_ERROR);
-      expect(users_count).toEqual(1);
+      expect(await User.count()).toEqual(1);
     }
   });
 
   it('doesnt creates a new user in the database when a required param is missing', async () => {
-    const sampleUser = await factory.attrs('user');
+    const emptyParam = {};
+    const params = ['firstName', 'lastName', 'email', 'password'];
+    const randomParam = params[Math.floor(Math.random() * params.length)];
+    emptyParam[`${randomParam}`] = undefined;
+    const sampleUser = await factory.attrs('user', emptyParam);
     try {
-      await signUp(sampleUser.firstName, undefined, sampleUser.email, sampleUser.password);
+      await signUp(sampleUser);
     } catch (err) {
-      const users_count = await User.count();
       expect(err).not.toBe(null);
-      expect(err.internalCode).toEqual(DATABASE_ERROR);
-      expect(users_count).toEqual(0);
     }
+    expect(await User.count()).toEqual(0);
   });
 });
 
@@ -100,5 +101,34 @@ describe('findAll', () => {
   it('returns an empty list if an empty page was requested', async () => {
     await factory.createMany('user', 10);
     expect((await findAll(99, 10)).length).toBe(0);
+  });
+});
+
+describe('createOrUpdateAdmin', () => {
+  it('creates a new admin user in the database if the data sent meets all the criteria and the user is new', async () => {
+    await createOrUpdateAdmin(await factory.attrs('user'));
+    expect(await User.count()).toBeGreaterThan(0);
+    expect((await User.findOne()).dataValues.role).toBe('admin');
+  });
+
+  it('updates the role field of the user to `admin` if the user sent already existed in database', async () => {
+    const userParams = (await factory.create('user')).dataValues;
+    await createOrUpdateAdmin(userParams);
+    expect(await User.count()).toBe(1);
+    expect((await User.findOne()).dataValues.role).toBe('admin');
+  });
+
+  it('doesnt creates a new user in the database when a required param is missing', async () => {
+    const emptyParam = {};
+    const params = ['firstName', 'lastName', 'email', 'password'];
+    const randomParam = params[Math.floor(Math.random() * params.length)];
+    emptyParam[`${randomParam}`] = undefined;
+    const sampleUser = await factory.attrs('user', emptyParam);
+    try {
+      await createOrUpdateAdmin(sampleUser);
+    } catch (err) {
+      expect(err).not.toBe(null);
+    }
+    expect(await User.count()).toEqual(0);
   });
 });

@@ -6,7 +6,8 @@ factory.define('user', User, () => ({
   firstName: factory.chance('first'),
   lastName: factory.chance('last'),
   email: faker.internet.email(null, null, 'wolox.com.ar'),
-  password: factory.chance('string', { length: 8, alpha: true, numeric: true })
+  password: factory.chance('string', { length: 8, alpha: true, numeric: true }),
+  role: 'user'
 }));
 
 module.exports = { factory };

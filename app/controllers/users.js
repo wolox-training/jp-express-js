@@ -14,7 +14,7 @@ exports.signIn = (req, res, next) => {
     .catch(next);
 };
 
-exports.index = (req, res, next) => {
+exports.getAllUsers = (req, res, next) => {
   const { page, limit } = req.query;
   findAll(page, limit)
     .then(users => res.send({ users }))

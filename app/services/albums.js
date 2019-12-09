@@ -1,6 +1,6 @@
 const request = require('request-promise');
 const { externalServiceUrl } = require('../../config').common.api;
-const { externalServiceError, databaseError } = require('../errors');
+const { externalServiceError, databaseError, conflict } = require('../errors');
 const { Album } = require('../models');
 const logger = require('../logger/index');
 
@@ -29,7 +29,7 @@ exports.purchaseAlbum = async (userId, albumId) => {
   if (album && album.length) {
     if (await this.findByUserAndAlbum(userId, albumId)) {
       logger.error('A user cannot purchase the same album twice');
-      throw databaseError('You cannot purchase the same album twice');
+      throw conflict('You cannot purchase the same album twice');
     }
     try {
       return await Album.create({ userId, albumId });

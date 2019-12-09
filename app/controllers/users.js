@@ -1,5 +1,5 @@
-const { signUp, findUserByEmail } = require('../services/users');
-const { generateToken } = require('../helpers/token_generator');
+const { signUp, findUserByEmail, findAll } = require('../services/users');
+const { generateToken } = require('../helpers/authentication');
 
 exports.signUp = (req, res, next) => {
   const { firstName, lastName, email, password } = req.body;
@@ -8,7 +8,15 @@ exports.signUp = (req, res, next) => {
     .catch(next);
 };
 
-exports.signIn = async (req, res) => {
-  const user = await findUserByEmail(req.body.email);
-  res.send({ accessToken: generateToken(user) });
+exports.signIn = (req, res, next) => {
+  findUserByEmail(req.body.email)
+    .then(user => res.send({ accessToken: generateToken(user) }))
+    .catch(next);
+};
+
+exports.getAllUsers = (req, res, next) => {
+  const { page, limit } = req.query;
+  findAll(page, limit)
+    .then(users => res.send({ users }))
+    .catch(next);
 };

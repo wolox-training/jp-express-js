@@ -42,3 +42,12 @@ exports.purchaseAlbum = async (userId, albumId) => {
   logger.error('Invalid album id');
   throw databaseError('Invalid album id');
 };
+
+exports.findAlbumsByUser = userId =>
+  Album.findAll({
+    attributes: ['id', 'userId', 'albumId', 'createdAt', 'updatedAt'],
+    where: { userId }
+  }).catch(error => {
+    logger.error(error.message);
+    throw databaseError(error.message);
+  });

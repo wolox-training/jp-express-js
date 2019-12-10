@@ -117,13 +117,13 @@ describe('GET /users', () => {
   });
 });
 
-describe('POST /admin/users', () => {
+describe('POST /users/admin', () => {
   it('responds with a created status code when admin logged and data sent meets all the criteria', async () => {
     const adminParams = await factory.attrs('user', { role: 'admin' });
     const adminUser = await factory.create('user', adminParams);
     const token = generateToken(adminUser.dataValues);
     const response = await request
-      .post('/admin/users')
+      .post('/users/admin')
       .set('accesstoken', token)
       .send(await factory.attrs('user'));
     expect(response.statusCode).toBe(201);
@@ -135,7 +135,7 @@ describe('POST /admin/users', () => {
     const adminUser = await factory.create('user', adminParams);
     const token = generateToken(adminUser.dataValues);
     const response = await request
-      .post('/admin/users')
+      .post('/users/admin')
       .set('accesstoken', token)
       .send(await factory.attrs('user'));
     expect(response.statusCode).toBe(403);
@@ -145,7 +145,7 @@ describe('POST /admin/users', () => {
 
   it('responds with an unauthorized status code if the token sent is invalid', async () => {
     const response = await request
-      .post('/admin/users')
+      .post('/users/admin')
       .set('accesstoken', 'not-a-valid-token')
       .send(await factory.attrs('user'));
     expect(response.statusCode).toBe(401);
@@ -158,7 +158,7 @@ describe('POST /admin/users', () => {
     const adminUser = await factory.create('user', adminParams);
     const token = generateToken(adminUser.dataValues);
     const response = await request
-      .post('/admin/users')
+      .post('/users/admin')
       .set('accesstoken', token)
       .send(await factory.attrs('user', { password: 'abc123' }));
     expect(response.statusCode).toBe(500);
@@ -170,7 +170,7 @@ describe('POST /admin/users', () => {
     const adminUser = await factory.create('user', adminParams);
     const token = generateToken(adminUser.dataValues);
     const response = await request
-      .post('/admin/users')
+      .post('/users/admin')
       .set('accesstoken', token)
       .send(await factory.attrs('user', { email: 'test@notawesomedomain.com' }));
     expect(response.statusCode).toBe(500);
@@ -186,7 +186,7 @@ describe('POST /admin/users', () => {
     const adminUser = await factory.create('user', adminParams);
     const token = generateToken(adminUser.dataValues);
     const response = await request
-      .post('/admin/users')
+      .post('/users/admin')
       .set('accesstoken', token)
       .send(await factory.attrs('user', emptyParam));
     expect(response.statusCode).toBe(422);

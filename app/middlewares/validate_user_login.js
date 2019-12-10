@@ -9,13 +9,15 @@ exports.validateLoginUserRequest = async (req, res, next) => {
   const user = await findUserByEmail(email);
 
   if (!user) {
-    next(userValidationError(`There is no user with the email ${email} in our system.`));
-  } else if (!acceptedPassword(password, user.password)) next(userValidationError('The password is invalid'));
+    return next(userValidationError(`There is no user with the email ${email} in our system.`));
+  } else if (!acceptedPassword(password, user.password)) {
+    return next(userValidationError('The password is invalid'));
+  }
 
   if (errors.length > 0) {
     const errorsMessages = errors.map(error => error.msg);
-    next(userValidationError(`Errors: ${errorsMessages}`));
+    return next(userValidationError(`Errors: ${errorsMessages}`));
   }
 
-  next();
+  return next();
 };

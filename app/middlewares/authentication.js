@@ -9,13 +9,13 @@ exports.authenticate = (req, res, next) => {
   try {
     decodeToken(accesstoken);
   } catch (error) {
-    next(unauthorized(`Invalid token. ${error.message}`));
+    return next(unauthorized(`Invalid token. ${error.message}`));
   }
 
   if (errors.length > 0) {
     const errorsMessages = errors.map(error => error.msg);
-    next(userValidationError(`Errors: ${errorsMessages}`));
+    return next(userValidationError(`Errors: ${errorsMessages}`));
   }
 
-  next();
+  return next();
 };

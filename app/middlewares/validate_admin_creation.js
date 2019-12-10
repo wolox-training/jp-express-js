@@ -10,23 +10,29 @@ exports.validateCreateAdminRequest = (req, res, next) => {
 
   try {
     const userInfo = decodeToken(accesstoken);
-    if (userInfo.role === 'user') next(forbidden('You don`t have the permission to perform this action'));
+    if (userInfo.role === 'user') {
+      return next(forbidden('You don`t have the permission to perform this action'));
+    }
   } catch (error) {
-    next(unauthorized(`Invalid token. ${error.message}`));
+    return next(unauthorized(`Invalid token. ${error.message}`));
   }
 
   if (!firstName || !lastName || !email || !password) {
-    next(missingRequiredParams('One of the required params is missing'));
+    return next(missingRequiredParams('One of the required params is missing'));
   }
 
-  if (!emailRegexp.test(email)) next(userValidationError(`The email ${email} is not from our Wolox domain`));
+  if (!emailRegexp.test(email)) {
+    return next(userValidationError(`The email ${email} is not from our Wolox domain`));
+  }
 
-  if (!passwordRegexp.test(password)) next(userValidationError("The password doesn't meet our stadards"));
+  if (!passwordRegexp.test(password)) {
+    return next(userValidationError("The password doesn't meet our stadards"));
+  }
 
   if (errors.length > 0) {
     const errorsMessages = errors.map(error => error.msg);
-    next(userValidationError(`Errors: ${errorsMessages}`));
+    return next(userValidationError(`Errors: ${errorsMessages}`));
   }
 
-  next();
+  return next();
 };

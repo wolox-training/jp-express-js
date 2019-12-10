@@ -14,7 +14,7 @@ exports.init = app => {
   app.post('/users', validateCreateUserRequest, signUp);
   app.post('/users/sessions', validateLoginUserRequest, signIn);
   app.get('/users', authenticate, getAllUsers);
-  app.post('/admin/users', validateCreateAdminRequest, createAdmin);
+  app.post('/users/admin', validateCreateAdminRequest, createAdmin);
   app.post('/albums/:albumId', authenticate, purchaseAlbum);
   app.get('/users/:userId/albums', validateGetPurchasedAlbums, getPurchasedAlbums);
 };

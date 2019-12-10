@@ -4,7 +4,7 @@ const { factory } = require('../factory/user');
 const { DATABASE_ERROR } = require('../../app/errors');
 
 describe('findUserByEmail', () => {
-  it('returns a User if  there is a user created with the email requested', async () => {
+  it('returns a User if there is a user created with the email requested', async () => {
     const sampleUser = await factory.attrs('user');
     await User.create(sampleUser);
     const expectedUser = await findUserByEmail(sampleUser.email);

@@ -9,7 +9,6 @@ exports.validateGetPurchasedAlbums = (req, res, next) => {
 
   try {
     const { role, id } = decodeToken(accesstoken);
-    debugger;
     if (role === 'user' && id !== parseInt(userId)) {
       next(forbidden('You don`t have the permission to see purchased albums of other user'));
     }

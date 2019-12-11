@@ -10,16 +10,16 @@ exports.validateGetPurchasedAlbums = (req, res, next) => {
   try {
     const { role, id } = decodeToken(accesstoken);
     if (role === 'user' && id !== parseInt(userId)) {
-      next(forbidden('You don`t have the permission to see purchased albums of other user'));
+      return next(forbidden('You don`t have the permission to see purchased albums of other user'));
     }
   } catch (error) {
-    next(unauthorized(`Invalid token. ${error.message}`));
+    return next(unauthorized(`Invalid token. ${error.message}`));
   }
 
   if (errors.length > 0) {
     const errorsMessages = errors.map(error => error.msg);
-    next(userValidationError(`Errors: ${errorsMessages}`));
+    return next(userValidationError(`Errors: ${errorsMessages}`));
   }
 
-  next();
+  return next();
 };

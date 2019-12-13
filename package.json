@@ -8,6 +8,7 @@
   },
   "scripts": {
     "console": "node console.js",
+    "console-debug": "node --inspect console.js",
     "cover": "npm run test --coverage",
     "test": "NODE_ENV=testing jest --runInBand --forceExit --detectOpenHandles --passWithNoTests",
     "test-debug": "NODE_ENV=testing node --inspect node_modules/.bin/jest --runInBand --forceExit --detectOpenHandles --passWithNoTests",

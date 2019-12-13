@@ -1,5 +1,5 @@
 const { healthCheck } = require('./controllers/healthCheck');
-const { getAlbums, getAlbumPhotos } = require('./controllers/albums');
+const { getAlbums, getAlbumPhotos, purchaseAlbum } = require('./controllers/albums');
 const { signUp, signIn, getAllUsers, createAdmin } = require('./controllers/users');
 const { validateCreateUserRequest } = require('./middlewares/validate_user_creation');
 const { validateLoginUserRequest } = require('./middlewares/validate_user_login');
@@ -14,4 +14,5 @@ exports.init = app => {
   app.post('/users/sessions', validateLoginUserRequest, signIn);
   app.get('/users', authenticate, getAllUsers);
   app.post('/users/admin', validateCreateAdminRequest, createAdmin);
+  app.post('/albums/:albumId', authenticate, purchaseAlbum);
 };

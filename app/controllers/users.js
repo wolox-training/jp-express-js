@@ -1,9 +1,8 @@
-const { signUp, findUserByEmail, findAll } = require('../services/users');
+const { signUp, findUserByEmail, findAll, updateAdmin } = require('../services/users');
 const { generateToken } = require('../helpers/authentication');
 
 exports.signUp = (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
-  signUp(firstName, lastName, email, password)
+  signUp(req.body)
     .then(user => res.status(201).send({ user }))
     .catch(next);
 };
@@ -19,4 +18,19 @@ exports.getAllUsers = (req, res, next) => {
   findAll(page, limit)
     .then(users => res.send({ users }))
     .catch(next);
+};
+
+exports.createAdmin = async (req, res, next) => {
+  const user_params = req.body;
+  const user = await findUserByEmail(user_params.email);
+  if (user) {
+    updateAdmin(user.dataValues.id)
+      .then(() => res.status(201).send())
+      .catch(next);
+  } else {
+    user_params.role = 'admin';
+    signUp(user_params)
+      .then(() => res.status(201).send())
+      .catch(next);
+  }
 };

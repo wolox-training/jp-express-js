@@ -5,7 +5,8 @@ const {
   USER_VALIDATION_ERROR,
   MISSING_REQUIRED_PARAMS,
   DATABASE_ERROR,
-  UNAUTHORIZED
+  UNAUTHORIZED,
+  FORBIDDEN
 } = require('../../app/errors');
 const { generateToken } = require('../../app/helpers/authentication');
 const { signUp } = require('../../app/services/users');
@@ -56,13 +57,7 @@ describe('POST /users', () => {
 describe('POST /users/sessions', () => {
   it('responds with an accessToken when email and password sent match the ones stored in database', async () => {
     const userCredentials = { email: 'success.user@wolox.co', password: 'successpassword123' };
-    const userParams = await factory.attrs('user', userCredentials);
-    const storedUser = await signUp(
-      userParams.firstName,
-      userParams.lastName,
-      userParams.email,
-      userParams.password
-    );
+    const storedUser = await signUp(await factory.attrs('user', userCredentials));
     const response = await request.post('/users/sessions').send(userCredentials);
     expect(response.statusCode).toBe(200);
     expect(response.body.accessToken).toEqual(expect.stringContaining(generateToken(storedUser)));
@@ -76,10 +71,9 @@ describe('POST /users/sessions', () => {
     expect(response.text).toEqual(expect.stringContaining('There is no user'));
   });
 
-  it('responds with error status code and internal_code when the password sent doesnt matches with the record', async () => {
+  it('responds with error status code and internal_code when the password sent doesnt match with the record', async () => {
     const userCredentials = { email: 'existent.user@wolox.co', password: 'passwordMatch' };
-    const userParams = await factory.attrs('user', userCredentials);
-    await signUp(userParams.firstName, userParams.lastName, userParams.email, userParams.password);
+    await signUp(await factory.attrs('user', userCredentials));
     const response = await request
       .post('/users/sessions')
       .send({ email: userCredentials.email, password: 'passwordWontMatch' });
@@ -120,5 +114,83 @@ describe('GET /users', () => {
     expect(response.statusCode).toBe(401);
     expect(response.body.internal_code).toEqual(UNAUTHORIZED);
     expect(response.body.message).toEqual(expect.stringContaining('Invalid token'));
+  });
+});
+
+describe('POST /users/admin', () => {
+  it('responds with a created status code when admin logged and data sent meets all the criteria', async () => {
+    const adminParams = await factory.attrs('user', { role: 'admin' });
+    const adminUser = await factory.create('user', adminParams);
+    const token = generateToken(adminUser.dataValues);
+    const response = await request
+      .post('/users/admin')
+      .set('accesstoken', token)
+      .send(await factory.attrs('user'));
+    expect(response.statusCode).toBe(201);
+    expect(response.created).toBe(true);
+  });
+
+  it('responds with a forbidden status code when a user not admin is logged and performs the action', async () => {
+    const adminParams = await factory.attrs('user', { role: 'user' });
+    const adminUser = await factory.create('user', adminParams);
+    const token = generateToken(adminUser.dataValues);
+    const response = await request
+      .post('/users/admin')
+      .set('accesstoken', token)
+      .send(await factory.attrs('user'));
+    expect(response.statusCode).toBe(403);
+    expect(response.forbidden).toBe(true);
+    expect(response.body.internal_code).toBe(FORBIDDEN);
+  });
+
+  it('responds with an unauthorized status code if the token sent is invalid', async () => {
+    const response = await request
+      .post('/users/admin')
+      .set('accesstoken', 'not-a-valid-token')
+      .send(await factory.attrs('user'));
+    expect(response.statusCode).toBe(401);
+    expect(response.body.internal_code).toBe(UNAUTHORIZED);
+    expect(response.unauthorized).toBe(true);
+  });
+
+  it('responds with error status code when admin logged and the password param sent is too short', async () => {
+    const adminParams = await factory.attrs('user', { role: 'admin' });
+    const adminUser = await factory.create('user', adminParams);
+    const token = generateToken(adminUser.dataValues);
+    const response = await request
+      .post('/users/admin')
+      .set('accesstoken', token)
+      .send(await factory.attrs('user', { password: 'abc123' }));
+    expect(response.statusCode).toBe(500);
+    expect(response.body.internal_code).toBe(USER_VALIDATION_ERROR);
+  });
+
+  it('responds with error status code when admin logged and the email is not from Wolox domain', async () => {
+    const adminParams = await factory.attrs('user', { role: 'admin' });
+    const adminUser = await factory.create('user', adminParams);
+    const token = generateToken(adminUser.dataValues);
+    const response = await request
+      .post('/users/admin')
+      .set('accesstoken', token)
+      .send(await factory.attrs('user', { email: 'test@notawesomedomain.com' }));
+    expect(response.statusCode).toBe(500);
+    expect(response.body.internal_code).toBe(USER_VALIDATION_ERROR);
+  });
+
+  it('responds with error status code when there is one of the required params missing', async () => {
+    const emptyParam = {};
+    const params = ['firstName', 'lastName', 'email', 'password'];
+    const randomParam = params[Math.floor(Math.random() * params.length)];
+    emptyParam[`${randomParam}`] = '';
+    const adminParams = await factory.attrs('user', { role: 'admin' });
+    const adminUser = await factory.create('user', adminParams);
+    const token = generateToken(adminUser.dataValues);
+    const response = await request
+      .post('/users/admin')
+      .set('accesstoken', token)
+      .send(await factory.attrs('user', emptyParam));
+    expect(response.statusCode).toBe(422);
+    expect(response.body.internal_code).toBe(MISSING_REQUIRED_PARAMS);
+    expect(response.unprocessableEntity).toBe(true);
   });
 });

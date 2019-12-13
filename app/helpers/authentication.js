@@ -4,7 +4,8 @@ const { secret } = require('../../config').common.auth;
 exports.generateToken = user => {
   const payload = {
     id: user.id,
-    email: user.email
+    email: user.email,
+    role: user.role
   };
 
   return jwt.encode(payload, secret);

@@ -1,4 +1,5 @@
 const { signUp, findUserByEmail, findAll, updateAdmin } = require('../services/users');
+const { findAlbumsByUser } = require('../services/albums');
 const { generateToken } = require('../helpers/authentication');
 
 exports.signUp = (req, res, next) => {
@@ -33,4 +34,10 @@ exports.createAdmin = async (req, res, next) => {
       .then(() => res.status(201).send())
       .catch(next);
   }
+};
+
+exports.getPurchasedAlbums = (req, res, next) => {
+  findAlbumsByUser(req.params.userId)
+    .then(albums => res.send({ albums }))
+    .catch(next);
 };

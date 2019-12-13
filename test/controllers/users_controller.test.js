@@ -1,6 +1,7 @@
 'use strict';
 const request = require('supertest')(require('../../app'));
 const { factory } = require('../factory/user');
+const album_factory = require('../factory/album');
 const {
   USER_VALIDATION_ERROR,
   MISSING_REQUIRED_PARAMS,
@@ -192,5 +193,73 @@ describe('POST /users/admin', () => {
     expect(response.statusCode).toBe(422);
     expect(response.body.internal_code).toBe(MISSING_REQUIRED_PARAMS);
     expect(response.unprocessableEntity).toBe(true);
+  });
+});
+
+describe('GET /users/:userId/albums', () => {
+  describe('when admin user is logged', () => {
+    it('responds with ok status code and a list of albums purchased if userId requested is his', async () => {
+      const adminUser = (await factory.create('user', { role: 'admin' })).dataValues;
+      await album_factory.createMany('album', 5, { userId: adminUser.id });
+      const token = generateToken(adminUser);
+      const response = await request.get(`/users/${adminUser.id}/albums`).set('accesstoken', token);
+      expect(response.statusCode).toBe(200);
+      expect(response.body.albums.length).toBe(5);
+      expect(response.ok).toBe(true);
+    });
+
+    it('responds with ok status code and a list of albums purchased if userId requested is others`', async () => {
+      const otherUser = (await factory.create('user')).dataValues;
+      const adminUser = (await factory.create('user', { role: 'admin' })).dataValues;
+      await album_factory.createMany('album', 5, { userId: otherUser.id });
+      const token = generateToken(adminUser);
+      const response = await request.get(`/users/${otherUser.id}/albums`).set('accesstoken', token);
+      expect(response.statusCode).toBe(200);
+      expect(response.body.albums.length).toBe(5);
+      expect(response.ok).toBe(true);
+    });
+  });
+
+  describe('when regular user is logged', () => {
+    it('responds with ok status code and a list of albums purchased if userId requested is his', async () => {
+      const regularUser = (await factory.create('user')).dataValues;
+      await album_factory.createMany('album', 5, { userId: regularUser.id });
+      const token = generateToken(regularUser);
+      const response = await request.get(`/users/${regularUser.id}/albums`).set('accesstoken', token);
+      expect(response.statusCode).toBe(200);
+      expect(response.body.albums.length).toBe(5);
+      expect(response.ok).toBe(true);
+    });
+
+    it('responds with forbidden status code when userId requested is others`', async () => {
+      const otherUser = (await factory.create('user')).dataValues;
+      const regularUser = (await factory.create('user')).dataValues;
+      await album_factory.createMany('album', 5, { userId: otherUser.id });
+      const token = generateToken(regularUser);
+      const response = await request.get(`/users/${otherUser.id}/albums`).set('accesstoken', token);
+      expect(response.statusCode).toBe(403);
+      expect(response.forbidden).toBe(true);
+      expect(response.body.internal_code).toBe(FORBIDDEN);
+    });
+  });
+
+  describe('when the user is not properly logged', () => {
+    it('responds with an unauthorized status code if the token sent is invalid', async () => {
+      const regularUser = (await factory.create('user')).dataValues;
+      const response = await request
+        .get(`/users/${regularUser.id}/albums`)
+        .set('accesstoken', 'not-a-valid-token');
+      expect(response.statusCode).toBe(401);
+      expect(response.body.internal_code).toBe(UNAUTHORIZED);
+      expect(response.unauthorized).toBe(true);
+    });
+
+    it('responds with an unauthorized status code if there wasn`t any token sent', async () => {
+      const regularUser = (await factory.create('user')).dataValues;
+      const response = await request.get(`/users/${regularUser.id}/albums`);
+      expect(response.statusCode).toBe(401);
+      expect(response.body.internal_code).toBe(UNAUTHORIZED);
+      expect(response.unauthorized).toBe(true);
+    });
   });
 });

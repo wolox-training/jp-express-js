@@ -2,12 +2,12 @@ const { validationResult } = require('express-validator');
 const { userValidationError, unauthorized } = require('../errors');
 const { decodeToken } = require('../helpers/authentication');
 
-exports.authenticate = (req, res, next) => {
+exports.authenticate = async (req, res, next) => {
   const { errors } = validationResult(req);
   const { accesstoken } = req.headers;
 
   try {
-    decodeToken(accesstoken);
+    await decodeToken(accesstoken);
   } catch (error) {
     return next(unauthorized(`Invalid token. ${error.message}`));
   }

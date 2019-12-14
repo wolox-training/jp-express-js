@@ -14,7 +14,7 @@ exports.getAlbumPhotos = (req, res, next) => {
 };
 
 exports.purchaseAlbum = async (req, res, next) => {
-  const userInfo = decodeToken(req.headers.accesstoken);
+  const userInfo = await decodeToken(req.headers.accesstoken);
   try {
     const album = await purchaseAlbum(userInfo.id, req.params.albumId);
     res.status(201).send({ album });

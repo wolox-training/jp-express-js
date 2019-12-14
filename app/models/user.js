@@ -31,6 +31,12 @@ module.exports = (sequelize, DataTypes) => {
         values: ['user', 'admin'],
         allowNull: false,
         defaultValue: 'user'
+      },
+      token: {
+        type: DataTypes.STRING
+      },
+      secret: {
+        type: DataTypes.STRING
       }
     },
     {}

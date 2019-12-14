@@ -1,4 +1,4 @@
-const { signUp, findUserByEmail, findAll, updateAdmin } = require('../services/users');
+const { signUp, findUserByEmail, findAll, updateAdmin, disableUserSessions } = require('../services/users');
 const { findAlbumsByUser } = require('../services/albums');
 const { generateToken } = require('../helpers/authentication');
 
@@ -10,7 +10,7 @@ exports.signUp = (req, res, next) => {
 
 exports.signIn = (req, res, next) => {
   findUserByEmail(req.body.email)
-    .then(user => res.send({ accessToken: generateToken(user) }))
+    .then(async user => res.send({ accessToken: await generateToken(user) }))
     .catch(next);
 };
 
@@ -39,5 +39,11 @@ exports.createAdmin = async (req, res, next) => {
 exports.getPurchasedAlbums = (req, res, next) => {
   findAlbumsByUser(req.params.userId)
     .then(albums => res.send({ albums }))
+    .catch(next);
+};
+
+exports.disableAllSessions = (req, res, next) => {
+  disableUserSessions(req.headers.accesstoken)
+    .then(() => res.send())
     .catch(next);
 };

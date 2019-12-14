@@ -3,13 +3,13 @@ const { userValidationError, missingRequiredParams, unauthorized, forbidden } = 
 const { passwordRegexp, emailRegexp } = require('../helpers/constants');
 const { decodeToken } = require('../helpers/authentication');
 
-exports.validateCreateAdminRequest = (req, res, next) => {
+exports.validateCreateAdminRequest = async (req, res, next) => {
   const { errors } = validationResult(req);
   const { firstName, lastName, email, password } = req.body;
   const { accesstoken } = req.headers;
 
   try {
-    const userInfo = decodeToken(accesstoken);
+    const userInfo = await decodeToken(accesstoken);
     if (userInfo.role === 'user') {
       return next(forbidden('You don`t have the permission to perform this action'));
     }

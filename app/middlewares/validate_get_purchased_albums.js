@@ -2,13 +2,13 @@ const { validationResult } = require('express-validator');
 const { userValidationError, unauthorized, forbidden } = require('../errors');
 const { decodeToken } = require('../helpers/authentication');
 
-exports.validateGetPurchasedAlbums = (req, res, next) => {
+exports.validateGetPurchasedAlbums = async (req, res, next) => {
   const { errors } = validationResult(req);
   const { accesstoken } = req.headers;
   const { userId } = req.params;
 
   try {
-    const { role, id } = decodeToken(accesstoken);
+    const { role, id } = await decodeToken(accesstoken);
     if (role === 'user' && id !== parseInt(userId)) {
       return next(forbidden('You don`t have the permission to see purchased albums of other user'));
     }

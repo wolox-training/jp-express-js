@@ -10,7 +10,7 @@ exports.signUp = (req, res, next) => {
 
 exports.signIn = (req, res, next) => {
   findUserByEmail(req.body.email)
-    .then(async user => res.send({ accessToken: await generateToken(user) }))
+    .then(async user => res.send(await generateToken(user)))
     .catch(next);
 };
 
